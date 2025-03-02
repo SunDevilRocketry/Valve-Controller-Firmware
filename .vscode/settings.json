@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "valve.h": "c",
+        "sdr_pin_defines_l0005.h": "c",
+        "compare": "c",
+        "cstdint": "c"
+    }
+}
