@@ -45,7 +45,6 @@ C_SOURCES =                                                          \
 main.c                                                               \
 $(INIT_DIR)/init.c                                                   \
 $(MOD_DIR)/commands/commands.c                                       \
-$(MOD_DIR)/common/common.c 											 \
 $(MOD_DIR)/led/led.c                                                 \
 $(MOD_DIR)/solenoid/solenoid.c                                       \
 $(MOD_DIR)/sensor/sensor.c                                           \
@@ -144,7 +143,6 @@ C_INCLUDES =  \
 -I$(LIB_DIR)/Drivers/CMSIS/Device/ST/STM32H7xx/Include \
 -I$(LIB_DIR)/Drivers/CMSIS/Include                     \
 -I$(MOD_DIR)/commands                                  \
--I$(MOD_DIR)/common									   \
 -I$(MOD_DIR)/led                                       \
 -I$(MOD_DIR)/solenoid                                  \
 -I$(MOD_DIR)/sensor                                    \
