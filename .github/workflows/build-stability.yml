@@ -36,8 +36,8 @@ jobs:
         run: |
           cd app/terminal/rev3 
           make
-      - name: Build ping application
+      - name: Build blink application
         run: |
-          cd app/ping/rev3
+          cd app/blink/rev3
           make
       - run: echo "🍏 This job's status is ${{ job.status }}."
