@@ -36,6 +36,8 @@ TIM_HandleTypeDef  htim15; /* LOX main valve control PWM signals  */
 UART_HandleTypeDef huart1; /* UART to USB                         */
 UART_HandleTypeDef huart3; /* UART to engine controller           */
 
+/* timing */
+volatile uint32_t previous_time, tdelta;
 
 /*------------------------------------------------------------------------------
 Typedefs                                                                  

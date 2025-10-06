@@ -40,6 +40,8 @@ extern "C" {
 	#define HAL_DEFAULT_TIMEOUT    ( 0xFFFFFFFF )  
 #endif /* SDR_DEBUG */
 
+#define USB_MODE 0
+
 
 /*------------------------------------------------------------------------------
  Typdefs 

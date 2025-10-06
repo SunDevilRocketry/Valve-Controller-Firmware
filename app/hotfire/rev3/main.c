@@ -27,7 +27,6 @@
 #include "usb.h"
 #include "valve.h"
 
-
 /*------------------------------------------------------------------------------
  Global Variables
 ------------------------------------------------------------------------------*/
@@ -36,6 +35,8 @@ TIM_HandleTypeDef  htim15; /* LOX main valve control PWM signals  */
 UART_HandleTypeDef huart1; /* UART to USB                         */
 UART_HandleTypeDef huart3; /* UART to engine controller           */
 
+/* timing */
+volatile uint32_t previous_time, tdelta;
 
 /*------------------------------------------------------------------------------
  Application entry point
@@ -80,6 +81,9 @@ sensor_init();
 /* Indicate successful initialization with green status LED */
 led_set_color( LED_GREEN );
 
+if (USB_MODE)
+	led_set_color( LED_BLUE );
+
 
 /*------------------------------------------------------------------------------
  Event Loop
@@ -89,15 +93,24 @@ while (1)
 	if ( usb_detect() )
 		{
 		/* Poll data from valve control interface */
-		valve_status = valve_receive( &command         , 
-		                              sizeof( command ),
-									  HAL_DEFAULT_TIMEOUT );
-									  
 		
+		
+		if (USB_MODE){
+			valve_status = usb_receive( &command         , 
+											sizeof( command ),
+											HAL_DEFAULT_TIMEOUT );
+		} else {
+			valve_status = valve_receive( &command         , 
+											sizeof( command ),
+											HAL_DEFAULT_TIMEOUT );
+		}
+
 		/* Execute command if valid */
 		if ( valve_status == VALVE_OK )
 			{
-			command_handler( command, CMD_SOURCE_VALVE );
+			if (USB_MODE)
+				command_handler( command, CMD_SOURCE_USB );
+			else command_handler( command, CMD_SOURCE_VALVE );
 			}
 
 		} /* if ( usb_detect() )*/
@@ -157,6 +170,9 @@ switch( command )
 		ping( cmd_source );
 
 		/* Firmware identifier */
+		if (USB_MODE)
+			usb_transmit( &firmware_code, sizeof( uint8_t ), HAL_DEFAULT_TIMEOUT );
+			
 //		valve_transmit( &firmware_code, sizeof( uint8_t ), HAL_DEFAULT_TIMEOUT );
 		break;
 		} /* CONNECT_OP */
@@ -165,7 +181,12 @@ switch( command )
 	case SOL_OP:
 		{
 		/* Get subcommand */
-		valve_status = valve_receive( &subcommand         , 
+		if (USB_MODE)
+			valve_status = usb_receive( &subcommand         , 
+										sizeof( subcommand ), 
+										HAL_DEFAULT_TIMEOUT );
+		else
+			valve_status = valve_receive( &subcommand         , 
 									  sizeof( subcommand ), 
 									  HAL_DEFAULT_TIMEOUT );
 		if ( valve_status == VALVE_OK )
@@ -182,9 +203,14 @@ switch( command )
 	/* Sensor Command --------------------------------------------------------*/
 	case SENSOR_OP:
 		{
-		valve_status = valve_receive( &subcommand         , 
-									  sizeof( subcommand ), 
-									  HAL_DEFAULT_TIMEOUT );
+		if (USB_MODE)
+			valve_status = usb_receive( &subcommand         , 
+										sizeof( subcommand ), 
+										HAL_DEFAULT_TIMEOUT );
+		else
+			valve_status = valve_receive( &subcommand         , 
+										  sizeof( subcommand ), 
+										  HAL_DEFAULT_TIMEOUT );
 		if ( valve_status == VALVE_OK )
 			{
 			sensor_status = sensor_cmd_execute( subcommand, cmd_source );
@@ -204,10 +230,14 @@ switch( command )
 	case VALVE_OP:
 		{
 		/* Get subcommand */
-		valve_status = valve_receive( &subcommand         , 
-									  sizeof( subcommand ), 
-									  HAL_DEFAULT_TIMEOUT );
-		
+		if (USB_MODE)
+			valve_status = usb_receive( &subcommand         , 
+										sizeof( subcommand ), 
+										HAL_DEFAULT_TIMEOUT );
+		else
+			valve_status = valve_receive( &subcommand         , 
+										  sizeof( subcommand ), 
+										  HAL_DEFAULT_TIMEOUT );
 		/* Execute subcommand */
 		if ( valve_status != VALVE_OK )
 			{
