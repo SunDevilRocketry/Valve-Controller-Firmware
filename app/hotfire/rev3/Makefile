@@ -36,6 +36,10 @@ MOD_DIR = ../../../mod
 # MCU Initialization Path
 INIT_DIR = ../../../init/rev3
 
+# Utilities path
+UTIL_DIR = $(LIB_DIR)/util
+
+
 ################################################################
 # source
 ################################################################
@@ -44,12 +48,14 @@ INIT_DIR = ../../../init/rev3
 C_SOURCES =                                                          \
 main.c                                                               \
 $(INIT_DIR)/init.c                                                   \
+$(UTIL_DIR)/sdr_error.c                                              \
 $(MOD_DIR)/commands/commands.c                                       \
 $(MOD_DIR)/led/led.c                                                 \
 $(MOD_DIR)/solenoid/solenoid.c                                       \
 $(MOD_DIR)/sensor/sensor.c                                           \
 $(MOD_DIR)/usb/usb.c                                                 \
 $(MOD_DIR)/valve/valve.c                                             \
+$(MOD_DIR)/common/common.c	                                         \
 $(INIT_DIR)/config/Src/stm32h7xx_it.c                                \
 $(INIT_DIR)/config/Src/stm32h7xx_hal_msp.c                           \
 $(INIT_DIR)/config/Src/system_stm32h7xx.c                            \
@@ -136,6 +142,7 @@ AS_INCLUDES =
 C_INCLUDES =  \
 -I.                                                    \
 -I$(INIT_DIR)                                          \
+-I$(UTIL_DIR)                                          \
 -I$(INIT_DIR)/config/Inc                               \
 -I$(LIB_DIR)                                           \
 -I$(LIB_DIR)/Drivers/STM32H7xx_HAL_Driver/Inc          \
@@ -143,6 +150,7 @@ C_INCLUDES =  \
 -I$(LIB_DIR)/Drivers/CMSIS/Device/ST/STM32H7xx/Include \
 -I$(LIB_DIR)/Drivers/CMSIS/Include                     \
 -I$(MOD_DIR)/commands                                  \
+-I$(MOD_DIR)/common                                    \
 -I$(MOD_DIR)/led                                       \
 -I$(MOD_DIR)/solenoid                                  \
 -I$(MOD_DIR)/sensor                                    \

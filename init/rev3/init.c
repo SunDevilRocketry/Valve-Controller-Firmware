@@ -20,7 +20,7 @@
 #include "sdr_pin_defines_L0005.h"
 #include "main.h"
 #include "init.h"
-
+#include "sdr_error.h"
 
 /*------------------------------------------------------------------------------
  Global Variables 
@@ -70,7 +70,7 @@ RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_NONE;
 RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
 if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK )
 	{
-	Error_Handler();
+    Error_Handler( ERROR_SYSCLOCK_CONFIG_ERROR );
 	}
 
 /* Initializes the CPU, AHB and APB buses clocks */
@@ -86,7 +86,7 @@ RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV1;
 RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV1;
 if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler( ERROR_SYSCLOCK_CONFIG_ERROR );
 	}
 } /* SystemClock_Config */
 
@@ -119,22 +119,22 @@ htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
 htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 if ( HAL_TIM_Base_Init( &htim2 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_FUEL_TIM_INIT_ERROR);
 	}
 sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 if ( HAL_TIM_ConfigClockSource( &htim2, &sClockSourceConfig ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_FUEL_TIM_INIT_ERROR);
 	}
 if ( HAL_TIM_PWM_Init( &htim2 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_FUEL_TIM_INIT_ERROR);
 	}
 sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
 if ( HAL_TIMEx_MasterConfigSynchronization( &htim2, &sMasterConfig ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_FUEL_TIM_INIT_ERROR);
 	}
 sConfigOC.OCMode     = TIM_OCMODE_PWM1;
 sConfigOC.Pulse      = 32000;
@@ -142,7 +142,7 @@ sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 if ( HAL_TIM_PWM_ConfigChannel( &htim2, &sConfigOC, TIM_CHANNEL_4 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_FUEL_TIM_INIT_ERROR);
 	}
 HAL_TIM_MspPostInit( &htim2 );
 } /* Fuel_Valve_TIM_Init */
@@ -178,22 +178,22 @@ htim15.Init.RepetitionCounter = 0;
 htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 if ( HAL_TIM_Base_Init( &htim15 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_LOX_TIM_INIT_ERROR);
 	}
 sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 if ( HAL_TIM_ConfigClockSource( &htim15, &sClockSourceConfig ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_LOX_TIM_INIT_ERROR);
 	}
 if ( HAL_TIM_PWM_Init( &htim15 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_LOX_TIM_INIT_ERROR);
 	}
 sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
 if ( HAL_TIMEx_MasterConfigSynchronization( &htim15, &sMasterConfig ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_LOX_TIM_INIT_ERROR);
 	}
 sConfigOC.OCMode       = TIM_OCMODE_PWM1;
 sConfigOC.Pulse        = 32000;
@@ -204,7 +204,7 @@ sConfigOC.OCIdleState  = TIM_OCIDLESTATE_RESET;
 sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 if ( HAL_TIM_PWM_ConfigChannel( &htim15, &sConfigOC, TIM_CHANNEL_1 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_LOX_TIM_INIT_ERROR);
 	}
 sBreakDeadTimeConfig.OffStateRunMode  = TIM_OSSR_DISABLE;
 sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
@@ -216,7 +216,7 @@ sBreakDeadTimeConfig.BreakFilter      = 0;
 sBreakDeadTimeConfig.AutomaticOutput  = TIM_AUTOMATICOUTPUT_DISABLE;
 if ( HAL_TIMEx_ConfigBreakDeadTime( &htim15, &sBreakDeadTimeConfig ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_LOX_TIM_INIT_ERROR);
 	}
 HAL_TIM_MspPostInit( &htim15 );
 } /* LOX_Valve_TIM_Init */
@@ -252,19 +252,19 @@ huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 /* Initialize the peripheral */
 if ( HAL_UART_Init( &(USB_HUART) ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_USB_UART_INIT_ERROR);
 	}
 if ( HAL_UARTEx_SetTxFifoThreshold( &(USB_HUART), UART_TXFIFO_THRESHOLD_1_8 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_USB_UART_INIT_ERROR);
 	}
 if ( HAL_UARTEx_SetRxFifoThreshold( &(USB_HUART), UART_RXFIFO_THRESHOLD_1_8 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_USB_UART_INIT_ERROR);
 	}
 if ( HAL_UARTEx_DisableFifoMode( &(USB_HUART) ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_USB_UART_INIT_ERROR);
 	}
 } /* USB_UART_Init */
 
@@ -302,19 +302,19 @@ huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 /* Write to registers and call error handler if initialization fails */
 if ( HAL_UART_Init( &huart3 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_VALVE_UART_INIT_ERROR);
 	}
 if ( HAL_UARTEx_SetTxFifoThreshold( &huart3, UART_TXFIFO_THRESHOLD_1_8 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_VALVE_UART_INIT_ERROR);
 	}
 if ( HAL_UARTEx_SetRxFifoThreshold( &huart3, UART_RXFIFO_THRESHOLD_1_8 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_VALVE_UART_INIT_ERROR);
 	}
 if ( HAL_UARTEx_DisableFifoMode( &huart3 ) != HAL_OK )
 	{
-	Error_Handler();
+	Error_Handler(ERROR_VALVE_UART_INIT_ERROR);
 	}
 } /* USB_UART_Init */
 

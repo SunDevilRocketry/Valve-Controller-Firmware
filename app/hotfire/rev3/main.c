@@ -26,7 +26,7 @@
 #include "sensor.h"
 #include "usb.h"
 #include "valve.h"
-
+#include "sdr_error.h"
 
 /*------------------------------------------------------------------------------
  Global Variables
@@ -35,6 +35,7 @@ TIM_HandleTypeDef  htim2;  /* Fuel main valve control PWM signals */
 TIM_HandleTypeDef  htim15; /* LOX main valve control PWM signals  */
 UART_HandleTypeDef huart1; /* UART to USB                         */
 UART_HandleTypeDef huart3; /* UART to engine controller           */
+
 
 
 /*------------------------------------------------------------------------------
@@ -80,6 +81,9 @@ sensor_init();
 /* Indicate successful initialization with green status LED */
 led_set_color( LED_GREEN );
 
+if (USB_MODE)
+	led_set_color( LED_BLUE );
+
 
 /*------------------------------------------------------------------------------
  Event Loop
@@ -89,15 +93,24 @@ while (1)
 	if ( usb_detect() )
 		{
 		/* Poll data from valve control interface */
-		valve_status = valve_receive( &command         , 
-		                              sizeof( command ),
-									  HAL_DEFAULT_TIMEOUT );
-									  
 		
+		
+		if (USB_MODE){
+			valve_status = usb_receive( &command         , 
+											sizeof( command ),
+											HAL_DEFAULT_TIMEOUT );
+		} else {
+			valve_status = valve_receive( &command         , 
+											sizeof( command ),
+											HAL_DEFAULT_TIMEOUT );
+		}
+
 		/* Execute command if valid */
 		if ( valve_status == VALVE_OK )
 			{
-			command_handler( command, CMD_SOURCE_VALVE );
+			if (USB_MODE)
+				command_handler( command, CMD_SOURCE_USB );
+			else command_handler( command, CMD_SOURCE_VALVE );
 			}
 
 		} /* if ( usb_detect() )*/
@@ -157,6 +170,9 @@ switch( command )
 		ping( cmd_source );
 
 		/* Firmware identifier */
+		if (USB_MODE)
+			usb_transmit( &firmware_code, sizeof( uint8_t ), HAL_DEFAULT_TIMEOUT );
+			
 //		valve_transmit( &firmware_code, sizeof( uint8_t ), HAL_DEFAULT_TIMEOUT );
 		break;
 		} /* CONNECT_OP */
@@ -165,7 +181,12 @@ switch( command )
 	case SOL_OP:
 		{
 		/* Get subcommand */
-		valve_status = valve_receive( &subcommand         , 
+		if (USB_MODE)
+			valve_status = usb_receive( &subcommand         , 
+										sizeof( subcommand ), 
+										HAL_DEFAULT_TIMEOUT );
+		else
+			valve_status = valve_receive( &subcommand         , 
 									  sizeof( subcommand ), 
 									  HAL_DEFAULT_TIMEOUT );
 		if ( valve_status == VALVE_OK )
@@ -174,7 +195,7 @@ switch( command )
 			}
 		else
 			{
-			Error_Handler();
+			Error_Handler(ERROR_VALVE_CMD_ERROR);
 			}
 		break;
 		} /* SOL_OP */
@@ -182,20 +203,25 @@ switch( command )
 	/* Sensor Command --------------------------------------------------------*/
 	case SENSOR_OP:
 		{
-		valve_status = valve_receive( &subcommand         , 
-									  sizeof( subcommand ), 
-									  HAL_DEFAULT_TIMEOUT );
+		if (USB_MODE)
+			valve_status = usb_receive( &subcommand         , 
+										sizeof( subcommand ), 
+										HAL_DEFAULT_TIMEOUT );
+		else
+			valve_status = valve_receive( &subcommand         , 
+										  sizeof( subcommand ), 
+										  HAL_DEFAULT_TIMEOUT );
 		if ( valve_status == VALVE_OK )
 			{
 			sensor_status = sensor_cmd_execute( subcommand, cmd_source );
 			if ( sensor_status != SENSOR_OK )
 				{
-				Error_Handler();
+				Error_Handler(ERROR_SENSOR_CMD_ERROR);
 				}
 			}
 		else
 			{
-			Error_Handler();
+			Error_Handler(ERROR_VALVE_CMD_ERROR);
 			}
 		break;
 		} /* SENSOR_OP */
@@ -204,21 +230,25 @@ switch( command )
 	case VALVE_OP:
 		{
 		/* Get subcommand */
-		valve_status = valve_receive( &subcommand         , 
-									  sizeof( subcommand ), 
-									  HAL_DEFAULT_TIMEOUT );
-		
+		if (USB_MODE)
+			valve_status = usb_receive( &subcommand         , 
+										sizeof( subcommand ), 
+										HAL_DEFAULT_TIMEOUT );
+		else
+			valve_status = valve_receive( &subcommand         , 
+										  sizeof( subcommand ), 
+										  HAL_DEFAULT_TIMEOUT );
 		/* Execute subcommand */
 		if ( valve_status != VALVE_OK )
 			{
-		//	Error_Handler();
+			Error_Handler(ERROR_VALVE_CMD_ERROR);
 			}
 		else
 			{
 			valve_status = valve_cmd_execute( subcommand );
 			if ( valve_status != VALVE_OK )
 				{
-			//	Error_Handler();
+				Error_Handler(ERROR_VALVE_CMD_ERROR);
 				}
 			}
 		break;
@@ -235,25 +265,6 @@ switch( command )
 
 } /* command handler */
 
-
-/*******************************************************************************
-*                                                                              *
-* PROCEDURE:                                                                   *
-* 		Error_Handler                                                          *
-*                                                                              *
-* DESCRIPTION:                                                                 *
-* 		Handles software errors by turing the status LED red                   *
-*                                                                              *
-*******************************************************************************/
-void Error_Handler(void)
-{
-  __disable_irq();
-  led_error_assert();
-  while (1)
-	{
-	/* Application hangs */
-	}
-} /* Error_Handler */
 
 
 /*******************************************************************************
