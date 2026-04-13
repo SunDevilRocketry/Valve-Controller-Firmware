@@ -26,6 +26,7 @@
 #include "sensor.h"
 #include "usb.h"
 #include "valve.h"
+#include "sdr_error.h"
 
 /*------------------------------------------------------------------------------
  Global Variables
@@ -194,7 +195,7 @@ switch( command )
 			}
 		else
 			{
-			Error_Handler();
+			Error_Handler(ERROR_VALVE_CMD_ERROR);
 			}
 		break;
 		} /* SOL_OP */
@@ -215,12 +216,12 @@ switch( command )
 			sensor_status = sensor_cmd_execute( subcommand, cmd_source );
 			if ( sensor_status != SENSOR_OK )
 				{
-				Error_Handler();
+				Error_Handler(ERROR_SENSOR_CMD_ERROR);
 				}
 			}
 		else
 			{
-			Error_Handler();
+			Error_Handler(ERROR_VALVE_CMD_ERROR);
 			}
 		break;
 		} /* SENSOR_OP */
@@ -240,14 +241,14 @@ switch( command )
 		/* Execute subcommand */
 		if ( valve_status != VALVE_OK )
 			{
-		//	Error_Handler();
+			Error_Handler(ERROR_VALVE_CMD_ERROR);
 			}
 		else
 			{
 			valve_status = valve_cmd_execute( subcommand );
 			if ( valve_status != VALVE_OK )
 				{
-			//	Error_Handler();
+				Error_Handler(ERROR_VALVE_CMD_ERROR);
 				}
 			}
 		break;
@@ -264,25 +265,6 @@ switch( command )
 
 } /* command handler */
 
-
-/*******************************************************************************
-*                                                                              *
-* PROCEDURE:                                                                   *
-* 		Error_Handler                                                          *
-*                                                                              *
-* DESCRIPTION:                                                                 *
-* 		Handles software errors by turing the status LED red                   *
-*                                                                              *
-*******************************************************************************/
-void Error_Handler(void)
-{
-  __disable_irq();
-  led_error_assert();
-  while (1)
-	{
-	/* Application hangs */
-	}
-} /* Error_Handler */
 
 
 /*******************************************************************************

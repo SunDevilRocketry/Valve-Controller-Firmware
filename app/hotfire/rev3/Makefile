@@ -36,6 +36,10 @@ MOD_DIR = ../../../mod
 # MCU Initialization Path
 INIT_DIR = ../../../init/rev3
 
+# Utilities path
+UTIL_DIR = $(LIB_DIR)/util
+
+
 ################################################################
 # source
 ################################################################
@@ -44,6 +48,7 @@ INIT_DIR = ../../../init/rev3
 C_SOURCES =                                                          \
 main.c                                                               \
 $(INIT_DIR)/init.c                                                   \
+$(UTIL_DIR)/sdr_error.c                                              \
 $(MOD_DIR)/commands/commands.c                                       \
 $(MOD_DIR)/led/led.c                                                 \
 $(MOD_DIR)/solenoid/solenoid.c                                       \
@@ -137,6 +142,7 @@ AS_INCLUDES =
 C_INCLUDES =  \
 -I.                                                    \
 -I$(INIT_DIR)                                          \
+-I$(UTIL_DIR)                                          \
 -I$(INIT_DIR)/config/Inc                               \
 -I$(LIB_DIR)                                           \
 -I$(LIB_DIR)/Drivers/STM32H7xx_HAL_Driver/Inc          \

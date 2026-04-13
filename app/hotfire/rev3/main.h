@@ -40,7 +40,7 @@ extern "C" {
 	#define HAL_DEFAULT_TIMEOUT    ( 0xFFFFFFFF )  
 #endif /* SDR_DEBUG */
 
-#define USB_MODE 0
+#define USB_MODE 1
 
 
 /*------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ typedef enum _CMD_SOURCE
 /*------------------------------------------------------------------------------
  Function prototypes                                                          
 ------------------------------------------------------------------------------*/
-void Error_Handler      ( void                    );
+// void Error_Handler      ( void                    );
 void HAL_TIM_MspPostInit( TIM_HandleTypeDef *htim );
 
 /* Processes commands from the SDEC terminal */
