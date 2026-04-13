@@ -50,6 +50,7 @@ $(MOD_DIR)/solenoid/solenoid.c                                       \
 $(MOD_DIR)/sensor/sensor.c                                           \
 $(MOD_DIR)/usb/usb.c                                                 \
 $(MOD_DIR)/valve/valve.c                                             \
+$(MOD_DIR)/common/common.c	                                         \
 $(INIT_DIR)/config/Src/stm32h7xx_it.c                                \
 $(INIT_DIR)/config/Src/stm32h7xx_hal_msp.c                           \
 $(INIT_DIR)/config/Src/system_stm32h7xx.c                            \
@@ -143,6 +144,7 @@ C_INCLUDES =  \
 -I$(LIB_DIR)/Drivers/CMSIS/Device/ST/STM32H7xx/Include \
 -I$(LIB_DIR)/Drivers/CMSIS/Include                     \
 -I$(MOD_DIR)/commands                                  \
+-I$(MOD_DIR)/common                                    \
 -I$(MOD_DIR)/led                                       \
 -I$(MOD_DIR)/solenoid                                  \
 -I$(MOD_DIR)/sensor                                    \
